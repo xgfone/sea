@@ -36,7 +36,7 @@ import webob.exc
 from oslo.config import cfg
 
 from sea.utils import xml as xmlutils
-from sea.utils import gettext
+from sea.utils import gettext as gettextutils
 from sea.utils import log as logging
 from sea import exception
 
@@ -132,6 +132,16 @@ class Request(webob.Request):
             self.environ['best_content_type'] = (content_type or 'application/json')
 
         return self.environ['best_content_type']
+
+    def best_match_language(self):
+        """Determine the best available language for the request.
+
+        :returns: the best language match or None if the 'Accept-Language'
+                  header was not available in the request.
+        """
+        if not self.accept_language:
+            return None
+        return self.accept_language.best_match(gettextutils.get_available_languages('nova'))
 
 
 class Server(object):
@@ -1483,7 +1493,7 @@ class Fault(webob.exc.HTTPException):
         LOG.debug(_("Returning %(code)s to user: %(explanation)s"),
                   {'code': code, 'explanation': explanation})
 
-        explanation = gettext.get_localized_message(explanation, user_locale)
+        explanation = gettextutils.get_localized_message(explanation, user_locale)
         fault_data = {
             fault_name: {
                 'code': code,
@@ -1552,11 +1562,11 @@ class RateLimitFault(webob.exc.HTTPException):
         metadata = {"attributes": {"overLimit": ["code", "retryAfter"]}}
 
         self.content['overLimit']['message'] = \
-            gettext.get_localized_message(self.content['overLimit']['message'],
-                                          user_locale)
+            gettextutils.get_localized_message(self.content['overLimit']['message'],
+                                               user_locale)
         self.content['overLimit']['details'] = \
-            gettext.get_localized_message(self.content['overLimit']['details'],
-                                          user_locale)
+            gettextutils.get_localized_message(self.content['overLimit']['details'],
+                                               user_locale)
 
         xml_serializer = XMLDictSerializer(metadata, XMLNS_V11)
         serializer = {
