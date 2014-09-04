@@ -28,11 +28,14 @@ def setup(config_file=None, level=logging.INFO, stderr=True, log_file=None,
         _load_log_config(config_file)
     else:
         _setup_logging_from_conf(level, log_file, stderr, fmt, datefmt)
-    raise LogConfigError("Must give a product name or a config file")
 
 
 def _load_log_config(config_file):
     logging.config.fileConfig(config_file)
+
+
+def _get_root_logger():
+    return logging.getLogger()
 
 
 def _setup_logging_from_conf(level=logging.INFO, log_file=None, stderr=True, fmt=None, datefmt=DATE_FORMAT):
@@ -46,11 +49,12 @@ def _setup_logging_from_conf(level=logging.INFO, log_file=None, stderr=True, fmt
         handler = logging.handlers.TimedRotatingFileHandler(log_file, when='midnight', backupCount=7)
         handlers.append(handler)
 
+    root = _get_root_logger()
     for h in handlers:
         h.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
-        logging.addHandler(h)
+        root.addHandler(h)
 
-    logging.setLevel(level)
+    root.setLevel(level)
 
 
 class ColorHandler(logging.StreamHandler):
