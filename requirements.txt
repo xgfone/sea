@@ -1,0 +1,8 @@
+oslo.config
+webob
+routes
+eventlet
+greenlet
+lxml
+babel
+iso8601
