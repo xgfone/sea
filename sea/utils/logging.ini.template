@@ -15,7 +15,7 @@ handlers=consoleHandler,fileHandler
 level=INFO
 handlers=fileHandler,consoleHandler
 propagate=0
-qualname=RPOJECT
+qualname=PROJECT
 
 [handler_consoleHandler]
 class=StreamHandler
